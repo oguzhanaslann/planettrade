@@ -1,4 +1,4 @@
-package gameengine.base;
+package project.gameengine.base;
 
 public interface GameEngine {
     void addPlayer(Player player);

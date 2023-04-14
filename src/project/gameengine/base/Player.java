@@ -1,4 +1,4 @@
-package gameengine.base;
+package project.gameengine.base;
 
 /**
  * Created by dindar.oz on 5.05.2017.

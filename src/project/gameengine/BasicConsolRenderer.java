@@ -1,4 +1,4 @@
-package gameengine;
+package project.gameengine;
 
 import project.gameengine.base.Game;
 import project.gameengine.base.GameRenderer;

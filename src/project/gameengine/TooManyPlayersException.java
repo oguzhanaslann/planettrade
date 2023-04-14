@@ -1,4 +1,4 @@
-package gameengine;
+package project.gameengine;
 
 /**
  * Created by dindar.oz
