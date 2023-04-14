@@ -1,2 +1,5 @@
-package planettrade;public interface Blackhole {
+package planettrade;
+
+public interface Blackhole {
+    Galaxy explode();
 }
