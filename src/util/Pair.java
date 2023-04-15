@@ -4,6 +4,11 @@ public final class Pair<T, K> {
     private T first;
     private K second;
 
+
+    public boolean holds(Object o) {
+        return first.equals(o) || second.equals(o);
+    }
+
     private Pair(T first, K second) {
         this.first = first;
         this.second = second;

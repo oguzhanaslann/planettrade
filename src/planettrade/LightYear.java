@@ -1,9 +1,10 @@
 package planettrade;
 
-public record LightYear(long distance) {
+import util.NumberUtils;
 
-    static LightYear of(long distance) {
-        return new LightYear(distance);
+public record LightYear(long distance) {
+     public static LightYear random(long lowerLimit, long upperLimit) {
+        return new LightYear(NumberUtils.random(lowerLimit, upperLimit));
     }
 }
 

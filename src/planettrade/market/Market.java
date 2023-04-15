@@ -1,4 +1,6 @@
-package planettrade;
+package planettrade.market;
+
+import planettrade.Commodity;
 
 public interface Market {
     void buy(Commodity commodity, int amount);

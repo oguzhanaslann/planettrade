@@ -1,10 +1,12 @@
-package planettrade;
+package planettrade.spaceship;
 
-public abstract class ShapeShip {
+import planettrade.LightYear;
+
+public class ShapeShip {
     private final String name;
     private final double buyPrice;
 
-    private final double capacity;
+    private final int capacity;
 
     private final LightYear speed;
 
@@ -14,7 +16,7 @@ public abstract class ShapeShip {
 
     private double currentFuel;
 
-    public ShapeShip(String name, double buyPrice, double capacity, LightYear speed, double fuelCapacity, double fuelUsagePerLightYear) {
+    public ShapeShip(String name, double buyPrice, int capacity, LightYear speed, double fuelCapacity, double fuelUsagePerLightYear) {
         this.name = name;
         this.buyPrice = buyPrice;
         this.capacity = capacity;

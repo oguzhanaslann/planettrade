@@ -1,5 +1,6 @@
 package planettrade;
 
+import planettrade.spaceship.ShapeShip;
 import project.gameengine.base.Action;
 import project.gameengine.base.GameContext;
 import project.gameengine.base.Player;
