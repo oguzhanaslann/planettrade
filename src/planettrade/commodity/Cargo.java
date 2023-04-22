@@ -1,2 +1,4 @@
-package planettrade.commodity;public record Cargo() {
+package planettrade.commodity;
+
+public record Cargo(Commodity commodity, int quantity) {
 }

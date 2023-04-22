@@ -1,62 +1,75 @@
-package planettrade;
+package planettrade.game;
 
 import planettrade.blackhole.MilkyWayBlackhole;
 import planettrade.commodity.Commodity;
 import planettrade.galaxy.Galaxy;
+import planettrade.game.context.BuyShapeShipContext;
+import planettrade.logger.Logger;
 import planettrade.money.Money;
 import planettrade.player.PlanetTradePlayer;
 import planettrade.spaceship.ShapeShip;
 import planettrade.spaceship.SpaceshipFactory;
-import project.gameengine.BasicConsolRenderer;
 import project.gameengine.TurnBasedGameEngine;
 import project.gameengine.base.*;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
-public class PlanetTradeGame implements Game {
-
-    public static final int MAXIMUM_PLAYER_COUNT = 10;
-    public static final int MINIMUM_PLAYER_COUNT = 1;
+public final class PlanetTradeGame implements Game {
+    public static final Money initialMoney = new Money(10_000);
     final List<PlanetTradePlayer> players;
-    private GameEngine engine = new TurnBasedGameEngine(
-            this,
-            new BasicConsolRenderer()
-    );
+    private final GameEngine engine;
+    int tick = 0;
 
-    private Money initialMoney = new Money(10_000);
+    public PlanetTradeGame(GameRenderer gameRenderer, List<PlanetTradePlayer> players) {
+        Logger.debug("PlanetTradeGame: initializing with renderer: " + gameRenderer);
 
-    public PlanetTradeGame() {
+        this.engine = new TurnBasedGameEngine(this, gameRenderer);
 
-        players = IntStream
-                .range(MINIMUM_PLAYER_COUNT, MAXIMUM_PLAYER_COUNT)
-                .mapToObj(i -> new PlanetTradePlayer("Player - " + i, initialMoney))
-                .toList();
-
+        this.players = players;
+        Logger.info("PlanetTradeGame: total players: " + players.size());
         players.forEach(player -> engine.addPlayer(player));
+        Logger.debug("PlanetTradeGame: all players added to game engine");
+    }
+
+    public void start() {
+        Logger.release("PlanetTradeGame: starting game");
+        engine.playARound();
+        Logger.release("PlanetTradeGame: game over");
     }
 
     @Override
     public boolean isOver() {
-        return false;
+        return tick++ > 10;
     }
 
     @Override
     public void init(List<Player> players) {
 
-        MilkyWayBlackhole blackhole = new MilkyWayBlackhole();
-        Galaxy galaxy = blackhole.explode();
+        players.forEach(player -> {
+            if (!players.contains(player)) {
+                throw new IllegalArgumentException("PlanetTradeGame: player: " + player + " is not in the list of players: " + players);
+            }
+        });
+
+        Logger.debug("PlanetTradeGame: initializing game with players: " + players);
+
         List<Commodity> commodities = Commodity.arbitraryCommodities();
-        List<ShapeShip> shapeShips = SpaceshipFactory.randomList(5);
+        Logger.debug("PlanetTradeGame: commodities created arbitrarily: " + commodities);
+
+        MilkyWayBlackhole blackhole = new MilkyWayBlackhole();
+        Logger.debug("PlanetTradeGame: blackhole created: " + blackhole);
+        Galaxy galaxy = blackhole.explode();
+        Logger.debug("PlanetTradeGame: blackhole exploded and galaxy created: " + galaxy);
         this.players.forEach(
                 player -> {
                     galaxy.randomPlanet().ifPresent(player::setCurrentPlanet);
                 }
         );
 
+        List<ShapeShip> shapeShips = SpaceshipFactory.randomList(5);
         this.players.forEach(
                 player -> {
-                     player.prepareForGame();
+                    player.prepareForGame(new BuyShapeShipContext(shapeShips));
                 }
         );
 
@@ -69,7 +82,7 @@ public class PlanetTradeGame implements Game {
 
     @Override
     public void update(Action action) {
-
+        Logger.debug("PlanetTradeGame: updating game with action: " + action);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package planettrade;
+package planettrade.commodity;
 
 import java.util.List;
 

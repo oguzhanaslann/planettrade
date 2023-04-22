@@ -1,4 +1,4 @@
-package planettrade;
+package planettrade.planet;
 
 import planettrade.market.Market;
 import planettrade.market.MarketGenerator;
@@ -31,5 +31,10 @@ public class Planet {
                 NumberUtils.random(0.1d, 1d),
                 NumberUtils.random(1d, 10d)
         );
+    }
+
+    @Override
+    public String toString() {
+        return "Planet("+name+")";
     }
 }

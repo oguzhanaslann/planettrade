@@ -1,2 +1,4 @@
-package planettrade.game.actions;public class BuyShapeshipAction {
+package planettrade.game.actions;
+
+public class BuyShapeShipAction {
 }

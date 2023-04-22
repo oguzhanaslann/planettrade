@@ -1,16 +1,18 @@
 package planettrade.commodity;
 
-public class SupplyOfCommodity {
-    private final int amount;
-    private final double buyPrice;
-    private final double sellPrice;
+import util.NumberUtils;
 
-    private final Commodity commodity;
+public record Supply(int amount, double buyPrice, double sellPrice) {
+    public static Supply random() {
+        double price = NumberUtils.random(1, 10);
+        return new Supply(
+                NumberUtils.random(1, 100),
+                price,
+                price * NumberUtils.random(0.5, 1.5)
+        );
+    }
 
-    public SupplyOfCommodity(Commodity commodity, int amount, double buyPrice, double sellPrice) {
-        this.commodity = commodity;
-        this.amount = amount;
-        this.buyPrice = buyPrice;
-        this.sellPrice = sellPrice;
+    public Supply withAmount(int amount) {
+        return new Supply(amount, buyPrice, sellPrice);
     }
 }

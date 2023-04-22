@@ -1,10 +1,11 @@
 package planettrade.spaceship;
 
 import planettrade.LightYear;
+import planettrade.money.Money;
 
-public class ShapeShip {
+public final class ShapeShip {
     private final String name;
-    private final double buyPrice;
+    private final Money buyPrice;
 
     private final int capacity;
 
@@ -16,7 +17,7 @@ public class ShapeShip {
 
     private double currentFuel;
 
-    public ShapeShip(String name, double buyPrice, int capacity, LightYear speed, double fuelCapacity, double fuelUsagePerLightYear) {
+    public ShapeShip(String name, Money buyPrice, int capacity, LightYear speed, double fuelCapacity, double fuelUsagePerLightYear) {
         this.name = name;
         this.buyPrice = buyPrice;
         this.capacity = capacity;
@@ -40,5 +41,9 @@ public class ShapeShip {
         }
 
         currentFuel = fuel;
+    }
+
+    public Money getBuyPrice() {
+        return buyPrice;
     }
 }

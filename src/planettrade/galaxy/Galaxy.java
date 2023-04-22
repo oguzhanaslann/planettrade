@@ -1,25 +1,60 @@
 package planettrade.galaxy;
 
 import planettrade.LightYear;
-import planettrade.Planet;
+import planettrade.logger.Logger;
+import planettrade.planet.Planet;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.HashSet;
 
 public abstract class Galaxy {
     private Set<Planet> planets;
 
-    private Map<Planet, LightYear[]> distances; //distances from each planet to all other planets
+    private Map<Planet, Map<Planet, LightYear>> distances;
 
-    public Galaxy(Set<Planet> planets, Map<Planet, LightYear[]> distances) {
+    public Galaxy(Set<Planet> planets, Map<Planet, Map<Planet, LightYear>> distances) {
         this.planets = planets;
         this.distances = distances;
-
-        // used class members for safety to prevent from TOCTOU attacks
         controlInputsValidityAndThrowErrorIfNeeded(this.planets, this.distances);
     }
 
-    private void controlInputsValidityAndThrowErrorIfNeeded(Set<Planet> planets, Map<Planet, LightYear[]> distances) {
+    private static boolean isMultiPlanetGalaxy(Set<Planet> planets) {
+        return planets.size() > 1;
+    }
+
+    private static void controlMultiPlanetGalaxyAndThrowErrorIfNeeded(Set<Planet> planets, Map<Planet, Map<Planet, LightYear>> distances) {
+        int planetCount = planets.size();
+        if (planetCount != distances.size()) {
+            throw new IllegalArgumentException("The number of planets and distances must be the same");
+        }
+
+        for (Planet planet : planets) {
+            if (!distances.containsKey(planet)) {
+                throw new IllegalArgumentException("The distances must contain all planets");
+            }
+
+            Map<Planet, LightYear> planetDistances = distances.get(planet);
+            if (planetDistances.size() != planetCount - 1) {
+                throw new IllegalArgumentException("The distances must contain all planets except the planet itself");
+            }
+
+            Set<Planet> otherPlanets = planets.stream()
+                    .filter(p -> !p.equals(planet))
+                    .collect(HashSet::new, HashSet::add, HashSet::addAll);
+
+            for (Planet other : otherPlanets) {
+                LightYear distanceFromPlanetToOther = distances.get(planet).get(other);
+                LightYear distanceFromOtherToPlanet = distances.get(other).get(planet);
+                if (!distanceFromPlanetToOther.equals(distanceFromOtherToPlanet)) {
+                    throw new IllegalArgumentException("The distances must be symmetric");
+                }
+            }
+        }
+    }
+
+    private void controlInputsValidityAndThrowErrorIfNeeded(Set<Planet> planets, Map<Planet, Map<Planet, LightYear>> distances) {
         if (isMultiPlanetGalaxy(planets)) {
             controlMultiPlanetGalaxyAndThrowErrorIfNeeded(planets, distances);
         } else if (isSinglePlanetGalaxy(planets)) {
@@ -33,37 +68,21 @@ public abstract class Galaxy {
         return planets.size() == 1;
     }
 
-    private void controlSinglePlanetGalaxyAndThrowErrorIfNeeded(Map<Planet, LightYear[]> distances) {
+    private void controlSinglePlanetGalaxyAndThrowErrorIfNeeded(Map<Planet, Map<Planet, LightYear>> distances) {
         if (distances.size() != 0) {
             throw new IllegalArgumentException("The distances must be empty for a galaxy with only one planet");
         }
     }
 
-    private static boolean isMultiPlanetGalaxy(Set<Planet> planets) {
-        return planets.size() > 1;
+    public Set<Planet> getPlanets() {
+        return planets;
     }
 
-    private static void controlMultiPlanetGalaxyAndThrowErrorIfNeeded(Set<Planet> planets, Map<Planet, LightYear[]> distances) {
-        int planetCount = planets.size();
-        if (planetCount != distances.size()) {
-            throw new IllegalArgumentException("The number of planets and distances must be the same");
+    public Optional<Planet> randomPlanet() {
+        if (planets.size() == 0) {
+            return Optional.empty();
         }
-
-        for (Planet planet : planets) {
-            if (!distances.containsKey(planet)) {
-                throw new IllegalArgumentException("The distances must contain all planets");
-            }
-
-            LightYear[] planetDistances = distances.get(planet);
-            if (planetDistances.length != planets.size() - 1) {
-                throw new IllegalArgumentException("The distances must contain all planets");
-            }
-
-            for (LightYear distance : planetDistances) {
-                if (distance.distance() <= 0) {
-                    throw new IllegalArgumentException("The distance must be positive, planet: " + planet.getName() + ", distance: " + distance.distance() + "");
-                }
-            }
-        }
+        int randomIndex = (int) (Math.random() * planets.size());
+        return Optional.of(planets.stream().skip(randomIndex).findFirst().get());
     }
 }
