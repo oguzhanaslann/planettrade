@@ -24,10 +24,16 @@ public class Planet {
         return name;
     }
 
-    public static Planet random() {
+    public Market getMarket() {
+        return market;
+    }
+
+    public static Planet random(
+            MarketGenerator marketGenerator
+    ) {
         return new Planet(
                 StringUtils.generateRandomName(),
-                MarketGenerator.random(),
+                marketGenerator.generate(),
                 NumberUtils.random(0.1d, 1d),
                 NumberUtils.random(1d, 10d)
         );

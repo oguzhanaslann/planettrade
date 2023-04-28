@@ -29,4 +29,8 @@ public record Money(double amount) {
     public Money divide(double divisor) {
         return new Money(zeroIfNegative(amount / divisor));
     }
+
+    public boolean isGreaterOrEqual(Money money) {
+        return amount >= money.amount;
+    }
 }

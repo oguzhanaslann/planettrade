@@ -5,10 +5,18 @@ import planettrade.commodity.Supply;
 import util.Pair;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class MarketGenerator {
-    public static Market random() {
-        List<Commodity> commodityList = Commodity.arbitraryCommodities();
+
+    private Supplier<List<Commodity>> commoditySupplier;
+
+    public MarketGenerator(Supplier<List<Commodity>> commoditySupplier) {
+        this.commoditySupplier = commoditySupplier;
+    }
+
+    public Market generate() {
+        final List<Commodity> commodityList = commoditySupplier.get();
         return new MilkywayMarket(
                 commodityList.stream()
                         .map(commodity -> Pair.of(commodity, Supply.random()))

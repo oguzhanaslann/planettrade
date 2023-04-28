@@ -1,7 +1,7 @@
 package planettrade.galaxy;
 
 import planettrade.LightYear;
-import planettrade.logger.Logger;
+import planettrade.planet.DistanceTable;
 import planettrade.planet.Planet;
 
 import java.util.Map;
@@ -12,9 +12,9 @@ import java.util.HashSet;
 public abstract class Galaxy {
     private Set<Planet> planets;
 
-    private Map<Planet, Map<Planet, LightYear>> distances;
+    private DistanceTable distances;
 
-    public Galaxy(Set<Planet> planets, Map<Planet, Map<Planet, LightYear>> distances) {
+    public Galaxy(Set<Planet> planets, DistanceTable distances) {
         this.planets = planets;
         this.distances = distances;
         controlInputsValidityAndThrowErrorIfNeeded(this.planets, this.distances);
@@ -24,18 +24,18 @@ public abstract class Galaxy {
         return planets.size() > 1;
     }
 
-    private static void controlMultiPlanetGalaxyAndThrowErrorIfNeeded(Set<Planet> planets, Map<Planet, Map<Planet, LightYear>> distances) {
+    private static void controlMultiPlanetGalaxyAndThrowErrorIfNeeded(Set<Planet> planets, DistanceTable distances) {
         int planetCount = planets.size();
         if (planetCount != distances.size()) {
             throw new IllegalArgumentException("The number of planets and distances must be the same");
         }
 
         for (Planet planet : planets) {
-            if (!distances.containsKey(planet)) {
+            if (!distances.containsInformationOf(planet)) {
                 throw new IllegalArgumentException("The distances must contain all planets");
             }
 
-            Map<Planet, LightYear> planetDistances = distances.get(planet);
+            Map<Planet, LightYear> planetDistances = distances.getDistancesFrom(planet);
             if (planetDistances.size() != planetCount - 1) {
                 throw new IllegalArgumentException("The distances must contain all planets except the planet itself");
             }
@@ -45,8 +45,8 @@ public abstract class Galaxy {
                     .collect(HashSet::new, HashSet::add, HashSet::addAll);
 
             for (Planet other : otherPlanets) {
-                LightYear distanceFromPlanetToOther = distances.get(planet).get(other);
-                LightYear distanceFromOtherToPlanet = distances.get(other).get(planet);
+                LightYear distanceFromPlanetToOther = distances.getDistancesFrom(planet).get(other);
+                LightYear distanceFromOtherToPlanet = distances.getDistancesFrom(other).get(planet);
                 if (!distanceFromPlanetToOther.equals(distanceFromOtherToPlanet)) {
                     throw new IllegalArgumentException("The distances must be symmetric");
                 }
@@ -54,7 +54,7 @@ public abstract class Galaxy {
         }
     }
 
-    private void controlInputsValidityAndThrowErrorIfNeeded(Set<Planet> planets, Map<Planet, Map<Planet, LightYear>> distances) {
+    private void controlInputsValidityAndThrowErrorIfNeeded(Set<Planet> planets, DistanceTable distances) {
         if (isMultiPlanetGalaxy(planets)) {
             controlMultiPlanetGalaxyAndThrowErrorIfNeeded(planets, distances);
         } else if (isSinglePlanetGalaxy(planets)) {
@@ -68,14 +68,18 @@ public abstract class Galaxy {
         return planets.size() == 1;
     }
 
-    private void controlSinglePlanetGalaxyAndThrowErrorIfNeeded(Map<Planet, Map<Planet, LightYear>> distances) {
+    private void controlSinglePlanetGalaxyAndThrowErrorIfNeeded(DistanceTable distances) {
         if (distances.size() != 0) {
             throw new IllegalArgumentException("The distances must be empty for a galaxy with only one planet");
         }
     }
 
     public Set<Planet> getPlanets() {
-        return planets;
+        return Set.copyOf(planets);
+    }
+
+    public DistanceTable getDistances() {
+        return distances.copy();
     }
 
     public Optional<Planet> randomPlanet() {

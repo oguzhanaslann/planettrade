@@ -2,6 +2,7 @@ package planettrade.logger;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.function.Function;
 
 public enum LogLevel {
 
@@ -34,9 +35,15 @@ public enum LogLevel {
     LogLevel(int level) {
         this.level = level;
     }
-    
+
     boolean isAcceptable(LogLevel logLevel) {
         return logLevel.isHigherThanOrEqualTo(this);
+    }
+
+    void ifAcceptable(LogLevel logLevel, Function<LogLevel, Void> function) {
+        if (isAcceptable(logLevel)) {
+            function.apply(logLevel);
+        }
     }
 
     public static LogLevel lowest() {
