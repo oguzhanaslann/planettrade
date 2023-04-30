@@ -2,6 +2,7 @@ package planettrade.market;
 
 import planettrade.commodity.Commodity;
 import planettrade.commodity.Supply;
+import planettrade.money.Money;
 import util.Pair;
 
 import java.util.List;
@@ -25,24 +26,45 @@ public class MilkywayMarket implements Market {
 
 
     @Override
-    public void buy(Commodity commodity, int amount) throws NotEnoughSupplyException {
+    public void buy(Commodity commodity, int amount)  {
         if (supplies.containsKey(commodity)) {
             Supply supply = supplies.get(commodity);
-            if (supply.amount() >= amount) {
-                supplies.put(commodity, supply.withAmount(supply.amount() - amount));
-            } else {
-                throw new NotEnoughSupplyException("Not enough supply for " + commodity.name());
-            }
+            supplies.put(commodity, supply.withAmount(supply.amount() + amount));
         }
     }
 
     @Override
-    public double sell(Commodity commodity, int amount) {
+    public Money sell(Commodity commodity, int amount) {
         if (supplies.containsKey(commodity)) {
             Supply supply = supplies.get(commodity);
             supplies.put(commodity, supply.withAmount(supply.amount() + amount));
-            return supply.sellPrice() * amount;
+            return Money.of(supply.sellPrice() * amount);
         }
-        return 0;
+
+        throw new IllegalStateException("Commodity not found");
+    }
+
+    @Override
+    public Map<Commodity, Supply> getSupplies() {
+        return Map.copyOf(supplies);
+    }
+
+    @Override
+    public boolean hasSupplyOfCommodity(Commodity commodity) {
+        return supplies.containsKey(commodity) && supplies.get(commodity).amount() > 0;
+    }
+
+    @Override
+    public boolean hasEnoughSupplyOfCommodity(Commodity commodity, int amount) {
+        return supplies.containsKey(commodity) && supplies.get(commodity).amount() >= amount;
+    }
+
+    @Override
+    public double getPriceOf(Commodity commodityToBuy, int commodityAmount) {
+        if (supplies.containsKey(commodityToBuy)) {
+            Supply supply = supplies.get(commodityToBuy);
+            return supply.buyPrice() * commodityAmount;
+        }
+        return 0d;
     }
 }

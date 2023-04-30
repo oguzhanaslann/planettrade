@@ -10,6 +10,10 @@ public record Money(double amount) {
         }
     }
 
+    public static Money of(double amount) {
+        return new Money(amount);
+    }
+
     public Money add(Money money) {
         return new Money(zeroIfNegative(amount + money.amount));
     }
@@ -32,5 +36,17 @@ public record Money(double amount) {
 
     public boolean isGreaterOrEqual(Money money) {
         return amount >= money.amount;
+    }
+
+    public boolean isLessOrEqual(Money money) {
+        return amount <= money.amount;
+    }
+
+    public boolean isGreater(Money money) {
+        return amount > money.amount;
+    }
+
+    public boolean isLess(Money money) {
+        return amount < money.amount;
     }
 }
