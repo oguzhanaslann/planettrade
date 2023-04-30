@@ -8,10 +8,6 @@ public record Commodity(
         double decayRatio
 ) {
 
-    static Commodity from(Commodity other) {
-        return new Commodity(other.name, other.unitVolume, other.decayRatio);
-    }
-
     public static List<Commodity> arbitraryCommodities() {
         return List.of(
                 new Commodity("Water", 0.1, 0.1),

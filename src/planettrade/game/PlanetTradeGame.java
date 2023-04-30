@@ -144,6 +144,8 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
     }
 
     private void initTurns(List<Player> players) {
+        assert players != null;
+        assert players.size() > 0;
         if (turns != players.size() * TURN_FOR_EACH_PLAYER) {
             turns = players.size() * TURN_FOR_EACH_PLAYER;
             currentTurn = 0;
@@ -204,6 +206,7 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
     }
 
     private void chargePlayerForRentBy(boolean hasExecuted, PlanetTradePlayer player) {
+        assert player != null;
         if (!hasExecuted) {
             MutablePlayerAttributes attrs = playerAttributes.get(player);
             Optional<Planet> currentPlanetOptional = attrs.currentPlanet();
@@ -391,8 +394,10 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
         Planet currentPlanet = attributesOfPlayer.currentPlanet().get();
         Market market = currentPlanet.getMarket();
         Money sellMoney = market.sell(cargoToSell.commodity(), cargoToSell.quantity());
-        attributesOfPlayer.addMoney(sellMoney);
-        spaceShip.unloadCargo(cargoToSell);
+        synchronized (playerAttributes) {
+            attributesOfPlayer.addMoney(sellMoney);
+            spaceShip.unloadCargo(cargoToSell);
+        }
         Logger.release("PlanetTradeGame: player: " + currentPlayer.getName() + " sold cargo: " + cargoToSell + " with price: " + sellMoney);
     }
 
@@ -438,9 +443,11 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
     }
 
     private void onJourneyPlanAction(JourneyPlanAction action) {
-        JourneyPlan journeyPlan = action.journeyPlan();
-        PlanetTradePlayer currentPlayer = action.player();
-        journeyPlans.put(currentPlayer, Optional.of(journeyPlan));
+        synchronized (journeyPlans) {
+            JourneyPlan journeyPlan = action.journeyPlan();
+            PlanetTradePlayer currentPlayer = action.player();
+            journeyPlans.put(currentPlayer, Optional.of(journeyPlan));
+        }
     }
 
     @Override

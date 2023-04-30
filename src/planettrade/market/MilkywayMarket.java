@@ -14,7 +14,7 @@ public class MilkywayMarket implements Market {
     private Map<Commodity, Supply> supplies;
 
     public MilkywayMarket(Map<Commodity, Supply> supplies) {
-        this.supplies = supplies;
+        this.supplies = Map.copyOf(supplies);
     }
 
     // from pair list of Commodity and Supply

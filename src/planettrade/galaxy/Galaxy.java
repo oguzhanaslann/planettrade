@@ -4,10 +4,7 @@ import planettrade.LightYear;
 import planettrade.planet.DistanceTable;
 import planettrade.planet.Planet;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 public abstract class Galaxy {
     private Set<Planet> planets;
@@ -15,6 +12,8 @@ public abstract class Galaxy {
     private DistanceTable distances;
 
     public Galaxy(Set<Planet> planets, DistanceTable distances) {
+        Objects.requireNonNull(planets, "Planets cannot be null");
+        Objects.requireNonNull(distances, "Distances cannot be null");
         this.planets = planets;
         this.distances = distances;
         controlInputsValidityAndThrowErrorIfNeeded(this.planets, this.distances);

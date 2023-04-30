@@ -65,6 +65,7 @@ public final class PlanetTradePlayer implements Player {
 
     private Action getRandomPlayerAction(GameContext context) {
         int action = NumberUtils.random(1, 4);
+        assert action >= 1 && action <= 4;
         final int BuyNewMarketItems = 1;
         final int SellCargo = 2;
         final int BuyFuel = 3;

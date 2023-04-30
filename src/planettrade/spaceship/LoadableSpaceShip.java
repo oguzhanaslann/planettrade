@@ -14,6 +14,8 @@ public final class LoadableSpaceShip extends SpaceShip {
     }
 
     public static LoadableSpaceShip from(SpaceShip spaceShip) {
+        double currentFuel = spaceShip.getCurrentFuel();
+        List<Cargo> cargos = List.copyOf(spaceShip.getCargos());
         LoadableSpaceShip instance = new LoadableSpaceShip(
                 spaceShip.getName(),
                 spaceShip.getBuyPrice(),
@@ -23,8 +25,8 @@ public final class LoadableSpaceShip extends SpaceShip {
         );
 
         instance.speed = LightYear.ZERO;
-        instance.currentFuel = spaceShip.getCurrentFuel();
-        instance.cargos = spaceShip.getCargos();
+        instance.currentFuel = currentFuel;
+        instance.cargos = cargos;
 
         return instance;
     }
@@ -95,8 +97,6 @@ public final class LoadableSpaceShip extends SpaceShip {
 
         currentFuel -= fuel;
     }
-
-
 
     public void decayCargos() {
         ArrayList<Cargo> newCargos = new ArrayList<>(getCargos());

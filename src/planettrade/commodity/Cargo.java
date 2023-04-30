@@ -2,6 +2,8 @@ package planettrade.commodity;
 
 import planettrade.logger.Logger;
 
+import java.util.Objects;
+
 public record Cargo(Commodity commodity, int quantity) {
 
     public static Cargo of(Commodity commodity, int quantity) {
@@ -10,6 +12,7 @@ public record Cargo(Commodity commodity, int quantity) {
 
 
     public Cargo plus(Cargo cargo) {
+        Objects.requireNonNull(cargo, "Cannot add null cargo");
         if (!commodity.equals(cargo.commodity())) {
             throw new IllegalArgumentException("Cannot add cargo of different commodities");
         }
