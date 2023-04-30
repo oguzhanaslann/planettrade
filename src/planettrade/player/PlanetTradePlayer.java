@@ -25,37 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * A player has:
- * • name
- * • current money
- * • spaceship
- * • current planet
- * The players have read-only access to the following information during the game at each turn
- * • Their current money
- * • Their current spaceship (all attributes)
- * • The distances between each planet
- * • The market information of each planet (Market items etc.)
- * <p>
- * Each player starts the game with an initial amount of money and no spaceship
- * <p>
- * At each turn player can do the following actions
- * Buy new market items from the market of the current planet as much as the capacity of the spaceship and the supply of the market allows.
- * The buy operation causes the current money drop with the amount calculated by unit buy price of the market item in the market and the amount
- * <p>
- * Sell any cargo in the spaceship. The sell operation causes increase in the current money with amount calculated
- * by the cargo amount and unit sell price of the commodity in the market.
- * <p>
- * Buy fuel as much as the fuel capacity of the spaceship allows. It causes the current money drop with the amount
- * calculated by the unit fuel price at the current planet.
- * <p>
- * <p>
- * Plan journey to another planet. If this is done in one turn the player will be at the target planet in the next
- * turn if the spaceship has sufficient amount of fuel which is calculated by the fuel usage of the spaceship and
- * the value between the planets. Otherwise the player stays at the same planet causing a drop in the current money by the parking price of the
- * current planet.
- */
-
 public final class PlanetTradePlayer implements Player {
 
     private final String name;
@@ -93,7 +62,6 @@ public final class PlanetTradePlayer implements Player {
 
         return getRandomPlayerAction(context);
     }
-
 
     private Action getRandomPlayerAction(GameContext context) {
         int action = NumberUtils.random(1, 4);
@@ -159,7 +127,6 @@ public final class PlanetTradePlayer implements Player {
         return new NullAction();
     }
 
-
     private Action getSellCargoAction() {
         PlayerAttributes attributes = getAttributes();
 
@@ -176,9 +143,6 @@ public final class PlanetTradePlayer implements Player {
 
         return new NullAction();
     }
-
-    // * Buy fuel as much as the fuel capacity of the spaceship allows. It causes the current money drop with the amount
-    // * calculated by the unit fuel price at the current planet.
 
     private Action getBuyFuelAction() {
         PlayerAttributes attributes = getAttributes();
