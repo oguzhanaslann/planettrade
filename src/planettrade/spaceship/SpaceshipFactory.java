@@ -9,24 +9,31 @@ import java.util.stream.IntStream;
 
 public class SpaceshipFactory {
 
-    public static List<ShapeShip> randomShapeShipGroupWithSize(int size) {
+
+    public static<T extends SpaceShip> List<T> randomShapeShipGroupWithSize(int size, Class<T> clazz) {
         return IntStream
                 .range(1, size)
-                .mapToObj(i -> random())
+                .mapToObj(i -> random(clazz))
                 .toList();
     }
 
-    public static ShapeShip random() {
-        double fuel = NumberUtils.random(100d, 1000d);
-        double fuelCapacity = fuel;
-        return ShapeShip.builder(
-                        StringUtils.generateRandomName(), // name
-                        new Money(NumberUtils.random(3000d, 10_000d)), // buyPrice
-                        NumberUtils.random(1, 10), // capacity
-                         fuelCapacity, // fuelCapacity
-                        NumberUtils.random(0.1d, 1d) // fuelUsagePerLightYear
-                )
-                .withCurrentFuel(fuel)
-                .build();
+    @SuppressWarnings("unchecked")
+    public static<T extends SpaceShip> T random(Class<T> clazz) {
+        if(clazz == LoadableSpaceShip.class) {
+            double fuel = NumberUtils.random(100d, 1000d);
+            double fuelCapacity = fuel;
+            return (T) LoadableSpaceShip.builder(
+                            StringUtils.generateRandomName(), // name
+                            new Money(NumberUtils.random(3000d, 10_000d)), // buyPrice
+                            NumberUtils.random(1, 10), // capacity
+                            fuelCapacity, // fuelCapacity
+                            NumberUtils.random(0.1d, 1d) // fuelUsagePerLightYear
+                    )
+                    .withCurrentFuel(fuel)
+                    .build();
+        }
+
+
+        throw new IllegalArgumentException("Unknown spaceship class");
     }
 }

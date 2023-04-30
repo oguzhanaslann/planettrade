@@ -10,7 +10,7 @@ import planettrade.game.context.BuyShapeShipContext;
 import planettrade.market.Market;
 import planettrade.money.Money;
 import planettrade.planet.Planet;
-import planettrade.spaceship.ShapeShip;
+import planettrade.spaceship.SpaceShip;
 import project.gameengine.NullAction;
 import project.gameengine.base.Action;
 import project.gameengine.base.GameContext;
@@ -129,10 +129,10 @@ public final class PlanetTradePlayer implements Player {
             throw new IllegalStateException("Player has no shape ship");
         }
 
-        ShapeShip currentShapeShip = attributes.shapeShip().get();
+        SpaceShip currentSpaceShip = attributes.shapeShip().get();
 
-        if (currentShapeShip.hasCargoSpace()) {
-            int availableCargoSpace = currentShapeShip.getAvailableCargoSpace();
+        if (currentSpaceShip.hasCargoSpace()) {
+            int availableCargoSpace = currentSpaceShip.getAvailableCargoSpace();
             int randomIndex = NumberUtils.random(0, existingSupplies.size() - 1);
             Commodity commodityToBuy = existingSupplies.get(randomIndex);
             Supply supply = supplies.get(commodityToBuy);
@@ -157,8 +157,8 @@ public final class PlanetTradePlayer implements Player {
             throw new IllegalStateException("Player has no shape ship");
         }
 
-        ShapeShip shapeShip = attributes.shapeShip().get();
-        List<Cargo> cargos = shapeShip.getCargos();
+        SpaceShip spaceShip = attributes.shapeShip().get();
+        List<Cargo> cargos = spaceShip.getCargos();
         if (!cargos.isEmpty()) {
             Cargo randomCargo = cargos.get(NumberUtils.random(0, cargos.size() - 1));
             return new SellCargoAction(this, randomCargo);
@@ -172,21 +172,21 @@ public final class PlanetTradePlayer implements Player {
     }
 
     private BuyShapeShipAction getBuyShapeShipAction(BuyShapeShipContext context) {
-        Optional<ShapeShip> shipToBuy = getShapeShipToBuy(context);
+        Optional<SpaceShip> shipToBuy = getShapeShipToBuy(context);
         return new BuyShapeShipAction(this, shipToBuy);
     }
 
-    private Optional<ShapeShip> getShapeShipToBuy(BuyShapeShipContext context) {
+    private Optional<SpaceShip> getShapeShipToBuy(BuyShapeShipContext context) {
         final BuyShapeShipContext buyShapeShipContext = context;
-        final List<ShapeShip> shapeShips = buyShapeShipContext.getShapeShips();
+        final List<SpaceShip> spaceShips = buyShapeShipContext.getShapeShips();
         final Money money = getMoney();
 
-        List<ShapeShip> affordableShapeShips = shapeShips
+        List<SpaceShip> affordableSpaceShips = spaceShips
                 .stream()
                 .filter(shapeShip -> money.isGreaterOrEqual(shapeShip.getBuyPrice()))
                 .toList();
 
-        Optional<ShapeShip> shipToBuy = affordableShapeShips
+        Optional<SpaceShip> shipToBuy = affordableSpaceShips
                 .stream()
                 .findFirst();
         return shipToBuy;

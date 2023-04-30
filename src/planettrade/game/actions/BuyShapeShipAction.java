@@ -1,17 +1,16 @@
 package planettrade.game.actions;
 
-import planettrade.game.context.BuyShapeShipContext;
 import planettrade.player.PlanetTradePlayer;
-import planettrade.spaceship.ShapeShip;
+import planettrade.spaceship.SpaceShip;
 import project.gameengine.base.Action;
 
 import java.util.Optional;
 
 public class BuyShapeShipAction implements Action {
     private PlanetTradePlayer player;
-    private Optional<ShapeShip> shapeShip;
+    private Optional<SpaceShip> shapeShip;
 
-    public BuyShapeShipAction(PlanetTradePlayer player, Optional<ShapeShip> shapeShip) {
+    public BuyShapeShipAction(PlanetTradePlayer player, Optional<SpaceShip> shapeShip) {
         this.player = player;
         this.shapeShip = shapeShip;
     }
@@ -20,7 +19,7 @@ public class BuyShapeShipAction implements Action {
         return player;
     }
 
-    public Optional<ShapeShip> getShapeShip() {
+    public Optional<SpaceShip> getShapeShip() {
         return shapeShip;
     }
 

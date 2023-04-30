@@ -1,7 +1,7 @@
 package planettrade.game.context;
 
 import planettrade.player.PlanetTradePlayer;
-import planettrade.spaceship.ShapeShip;
+import planettrade.spaceship.SpaceShip;
 import project.gameengine.base.GameContext;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public class PlanetTradeContextFactory {
         return new PlanetTradeContextFactory();
     }
 
-    public GameContext buyShapeShip(List<ShapeShip> shapeShips, PlanetTradePlayer currentPlayer) {
-        return new BuyShapeShipContext(shapeShips, currentPlayer);
+    public GameContext buyShapeShip(List<SpaceShip> spaceShips, PlanetTradePlayer currentPlayer) {
+        return new BuyShapeShipContext(spaceShips, currentPlayer);
     }
 }

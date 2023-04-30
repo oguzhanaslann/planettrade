@@ -16,10 +16,12 @@ import planettrade.market.MarketGenerator;
 import planettrade.money.Money;
 import planettrade.planet.DistanceTable;
 import planettrade.planet.Planet;
+import planettrade.player.MutablePlayerAttributes;
 import planettrade.player.PlanetTradePlayer;
 import planettrade.player.PlayerAttributes;
 import planettrade.player.PlayerReadOnlyInfoProvider;
-import planettrade.spaceship.ShapeShip;
+import planettrade.spaceship.LoadableSpaceShip;
+import planettrade.spaceship.SpaceShip;
 import planettrade.spaceship.SpaceshipFactory;
 import project.gameengine.TurnBasedGameEngine;
 import project.gameengine.base.*;
@@ -40,9 +42,9 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
     private PlanetTradeContextFactory actionFactory = PlanetTradeContextFactory.createInstance();
 
     private List<Commodity> commodities;
-    private List<ShapeShip> shapeShips;
+    private List<LoadableSpaceShip> shapeShips;
 
-    private HashMap<PlanetTradePlayer, PlayerAttributes> playerAttributes = new HashMap<>();
+    private final HashMap<PlanetTradePlayer, MutablePlayerAttributes> playerAttributes = new HashMap<>();
 
     private Galaxy galaxy = null;
 
@@ -94,7 +96,7 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
         this.players.forEach(
                 player -> {
                     Logger.release("R-24 Each player starts the game with an initial amount of money and no spaceship");
-                    playerAttributes.put(player, new PlayerAttributes(initialMoney));
+                    playerAttributes.put(player, new MutablePlayerAttributes(initialMoney));
                 }
         );
 
@@ -112,19 +114,14 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
         Logger.debug("PlanetTradeGame: galaxy created: " + galaxy);
         Logger.release("R-10 A blackhole explodes and a galaxy is created randomly");
 
-        this.shapeShips = SpaceshipFactory.randomShapeShipGroupWithSize(5);
+        this.shapeShips = SpaceshipFactory.randomShapeShipGroupWithSize(5, LoadableSpaceShip.class);
         Logger.release("R-12 A list of spaceships is crated randomly by a spaceship factory.");
         Logger.debug("PlanetTradeGame: shapeShips created: " + shapeShips);
 
         this.players.forEach(
                 player -> {
-                    final PlayerAttributes attributes = playerAttributes.get(player);
-                    galaxy.randomPlanet()
-                            .ifPresent(
-                                    planet -> {
-                                        playerAttributes.put(player, attributes.withCurrentPlanet(planet));
-                                    }
-                            );
+                    final MutablePlayerAttributes attributes = playerAttributes.get(player);
+                    galaxy.randomPlanet().ifPresent(attributes::setCurrentPlanet);
                 }
         );
         Logger.release("R-13 Each player is placed at a random planet in the galaxy.");
@@ -146,8 +143,11 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
         PlanetTradePlayer currentPlayer = getPlayerAtTurn(currentTurn);
 
         if (!currentPlayer.hasShapeShip()) {
+            List<SpaceShip> shapeShipsMasked = shapeShips.stream()
+                    .map(shapeShip -> (SpaceShip) shapeShip)
+                    .toList();
             Logger.release("R-14 Each player is asked to choose and buy a spacehip from an initial list of spacehips which decreases the current money by the buy price of the chosen spaceship");
-            return actionFactory.buyShapeShip(shapeShips, currentPlayer);
+            return actionFactory.buyShapeShip(shapeShipsMasked, currentPlayer);
         }
 
         return new NoContext();
@@ -202,16 +202,16 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
     }
 
     private void onBuyAction(PlanetTradePlayer currentPlayer, BuyShapeShipAction action) {
-        Optional<ShapeShip> shapeShipOptional = action.getShapeShip();
+        Optional<SpaceShip> shapeShipOptional = action.getShapeShip();
         if (shapeShipOptional.isPresent()) {
-            ShapeShip shapeShip = shapeShipOptional.get();
-            PlayerAttributes attributesOfPlayer = playerAttributes.get(currentPlayer);
-            PlayerAttributes updatedAttrs = attributesOfPlayer
-                    .withShapeShip(shapeShipOptional)
-                    .reducedMoney(shapeShip.getBuyPrice());
-            Logger.release("R-14 The spaceship is added to the player's spaceship list and the current money is decreased by the buy price of the spaceship.");
-            updateUserAttrSync(currentPlayer, updatedAttrs);
-            Logger.debug("PlanetTradeGame: player: " + currentPlayer.getName() + " bought spaceship: " + shapeShip.getName());
+            final SpaceShip spaceShip = shapeShipOptional.get();
+            synchronized (playerAttributes) {
+                MutablePlayerAttributes attributesOfPlayer = playerAttributes.get(currentPlayer);
+                Logger.release("R-14 The spaceship is added to the player's spaceship list and the current money is decreased by the buy price of the spaceship.");
+                attributesOfPlayer.setShapeShip(LoadableSpaceShip.from(spaceShip));
+                attributesOfPlayer.reduceMoney(spaceShip.getBuyPrice());
+            }
+            Logger.debug("PlanetTradeGame: player: " + currentPlayer.getName() + " bought spaceship: " + spaceShip.getName());
         }
     }
 
@@ -219,7 +219,7 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
         Commodity commodityToBuy = action.commodity();
         int commodityAmount = action.amount();
 
-        PlayerAttributes attributesOfPlayer = playerAttributes.get(currentPlayer);
+        MutablePlayerAttributes attributesOfPlayer = playerAttributes.get(currentPlayer);
         if (attributesOfPlayer.currentPlanet().isEmpty()) {
             Logger.error("PlanetTradeGame: player: " + currentPlayer.getName() + " is not at any planet");
             return;
@@ -246,36 +246,41 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
             return;
         }
 
-        ShapeShip shapeShip = attributesOfPlayer.shapeShip().get();
-        if (!shapeShip.canCarry(commodityToBuy, commodityAmount)) {
+        Optional<LoadableSpaceShip> spaceShipOptional = attributesOfPlayer.loadableShapeShip();
+        if (spaceShipOptional.isEmpty()) {
+            Logger.error("PlanetTradeGame: player: " + currentPlayer.getName() + " is trying to buy commodity: " + commodityToBuy.name() + " but does not have a spaceship");
+            return;
+        }
+
+        LoadableSpaceShip spaceShip = spaceShipOptional.get();
+        if (!spaceShip.canCarry(commodityToBuy, commodityAmount)) {
             Logger.error("PlanetTradeGame: player: " + currentPlayer.getName() + " is trying to buy commodity: " + commodityToBuy.name() + " but spaceship cannot carry that much");
             return;
         }
 
         market.buy(commodityToBuy, commodityAmount);
-        PlayerAttributes updatedAttrs = attributesOfPlayer
-                .withMoney(userMoney.subtract(priceAsMoney));
-        updateUserAttrSync(currentPlayer, updatedAttrs);
-        shapeShip.loadCargo(Cargo.of(commodityToBuy, commodityAmount));
+        attributesOfPlayer.reduceMoney(priceAsMoney);
+        spaceShip.loadCargo(Cargo.of(commodityToBuy, commodityAmount));
         Logger.release("PlanetTradeGame: player: " + currentPlayer.getName() + " bought commodity: " + commodityToBuy.name() + " with amount: " + commodityAmount + " with price: " + price);
     }
 
     private void onSellCargoAction(PlanetTradePlayer currentPlayer, SellCargoAction action) {
         Cargo cargoToSell = action.cargo();
-        PlayerAttributes attributesOfPlayer = playerAttributes.get(currentPlayer);
+        MutablePlayerAttributes attributesOfPlayer = playerAttributes.get(currentPlayer);
         if (attributesOfPlayer.currentPlanet().isEmpty()) {
             Logger.error("PlanetTradeGame: player: " + currentPlayer.getName() + " is not at any planet");
             return;
         }
 
 
-        // check cargo is actually in the ship
-        if (attributesOfPlayer.shapeShip().isEmpty()) {
+        Optional<LoadableSpaceShip> spaceShipOptional = attributesOfPlayer.loadableShapeShip();
+        if (spaceShipOptional.isEmpty()) {
             Logger.error("PlanetTradeGame: player: " + currentPlayer.getName() + " is trying to sell cargo: " + cargoToSell + " but does not have a spaceship");
             return;
         }
-        ShapeShip shapeShip = attributesOfPlayer.shapeShip().get();
-        if (!shapeShip.hasCargo(cargoToSell)) {
+
+        LoadableSpaceShip spaceShip = spaceShipOptional.get();
+        if (!spaceShip.hasCargo(cargoToSell)) {
             Logger.error("PlanetTradeGame: player: " + currentPlayer.getName() + " is trying to sell cargo: " + cargoToSell + " but does not have that cargo");
             return;
         }
@@ -283,18 +288,9 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
         Planet currentPlanet = attributesOfPlayer.currentPlanet().get();
         Market market = currentPlanet.getMarket();
         Money sellMoney = market.sell(cargoToSell.commodity(), cargoToSell.quantity());
-
-        shapeShip.unloadCargo(cargoToSell);
-        PlayerAttributes updatedAttrs = attributesOfPlayer
-                .withMoney(attributesOfPlayer.money().add(sellMoney));
-        updateUserAttrSync(currentPlayer, updatedAttrs);
+        attributesOfPlayer.addMoney(sellMoney);
+        spaceShip.unloadCargo(cargoToSell);
         Logger.release("PlanetTradeGame: player: " + currentPlayer.getName() + " sold cargo: " + cargoToSell + " with price: " + sellMoney);
-    }
-
-    private void updateUserAttrSync(PlanetTradePlayer currentPlayer, PlayerAttributes updatedAttrs) {
-        synchronized (playerAttributes) {
-            playerAttributes.put(currentPlayer, updatedAttrs);
-        }
     }
 
     @Override

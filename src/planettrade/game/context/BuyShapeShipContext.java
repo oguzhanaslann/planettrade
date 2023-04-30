@@ -1,22 +1,22 @@
 package planettrade.game.context;
 
 import planettrade.player.PlanetTradePlayer;
-import planettrade.spaceship.ShapeShip;
+import planettrade.spaceship.SpaceShip;
 import project.gameengine.base.GameContext;
 
 import java.util.List;
 
 public class BuyShapeShipContext implements GameContext {
 
-    List<ShapeShip> shapeShips;
+    List<SpaceShip> spaceShips;
     PlanetTradePlayer planetTradePlayer;
 
-    public BuyShapeShipContext(List<ShapeShip> shapeShips, PlanetTradePlayer currentPlayer) {
-         this.shapeShips = shapeShips;
+    public BuyShapeShipContext(List<SpaceShip> spaceShips, PlanetTradePlayer currentPlayer) {
+         this.spaceShips = spaceShips;
          this.planetTradePlayer = currentPlayer;
     }
 
-    public List<ShapeShip> getShapeShips() {
-        return shapeShips;
+    public List<SpaceShip> getShapeShips() {
+        return spaceShips;
     }
 }
