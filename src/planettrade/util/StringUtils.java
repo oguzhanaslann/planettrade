@@ -1,4 +1,4 @@
-package util;
+package planettrade.util;
 
 import java.util.Random;
 

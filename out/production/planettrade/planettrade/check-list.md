@@ -34,30 +34,27 @@
 <!-- Table Object id and Source code location --> 
 
 
-| Object Id  | Source code Location                                                               |
-|------------|:-----------------------------------------------------------------------------------|
-| ch-1.p4    | LoadableSpaceShip.from,LightYear.of,Cargo.of,Money.of, Pair.of                     |
-| ch-1.p17   | LoadableSpaceShip.Builder                                                          |
-| ch-2.p6    | Planet.getMarket,Planet.getUnitFuelPrice, SpaceShip getters                        |
-| ch-2.p9    | LightYear, Cargo, Supply,Money,SpaceShip                                           |
-| ch-3.p7-13 | SpaceshipFactory.randomShapeShipGroupWithSize                                      |
-| ch-4.p8    | LogLevel                                                                           |
-| ch-4.p11   | SpaceshipFactory(L:20)                                                             |
-| ch-5.p5    | PlanetTradeGame.init(L:122),LogLevel(L:32), Galaxy(L:44)                           |
-| ch-5.p6    | SpaceShip(L:36), MilkyWayBlackhole(L:45), PlanetTradeGame(L:75), StringUtils(L:14) |
-| ch-6       | Galaxy(L:43), PlanetTradePlayer(L:104-173-199-204), SpaceShip(L:35)                |
-| ch-6.p18   | PlanetTradeGame(L:182), PlanetTradeGame.init(L:133), LoadableSpaceShip(L:103)      |
-| ch-7.p6    | Cargo.plus(L:15), Galaxy(L:15)                                                     |
-| ch-7.p7    | PlanetTradeGame(L:147-209), PlanetTradePlayer(L:67)                                |
-| ch-7.p9    | LoadableSpaceShip.from(), MilkywayMarket(L:17)                                     |
-|            |                                                                                    |
-|            |                                                                                    |
-|            |                                                                                    |
-|            |                                                                                    |
-|            |                                                                                    |
-|            |                                                                                    |
-|            |                                                                                    |
-|            |                                                                                    |
-|            |                                                                                    |
-|            |                                                                                    |
+| Object Id  | Source code Location                                                                       |
+|------------|:-------------------------------------------------------------------------------------------|
+| ch-1.p4    | LoadableSpaceShip.from,LightYear.of,Cargo.of,Money.of, Pair.of                             |
+| ch-1.p17   | LoadableSpaceShip.Builder                                                                  |
+| ch-2.p6    | Planet.getMarket,Planet.getUnitFuelPrice, SpaceShip getters                                |
+| ch-2.p9    | LightYear, Cargo, Supply,Money,SpaceShip                                                   |
+| ch-3.p7-13 | SpaceshipFactory.randomShapeShipGroupWithSize                                              |
+| ch-4.p8    | LogLevel                                                                                   |
+| ch-4.p11   | SpaceshipFactory(L:20)                                                                     |
+| ch-5.p5    | PlanetTradeGame.init(L:122),LogLevel(L:32), Galaxy(L:44)                                   |
+| ch-5.p6    | SpaceShip(L:36), MilkyWayBlackhole(L:45), PlanetTradeGame(L:75), StringUtils(L:14)         |
+| ch-6       | Galaxy(L:43), PlanetTradePlayer(L:104-173-199-204), SpaceShip(L:35)                        |
+| ch-6.p18   | PlanetTradeGame(L:182), PlanetTradeGame.init(L:133), LoadableSpaceShip(L:103)              |
+| ch-7.p6    | Cargo.plus(L:15), Galaxy(L:15)                                                             |
+| ch-7.p7    | PlanetTradeGame(L:147-209), PlanetTradePlayer(L:67)                                        |
+| ch-7.p9    | LoadableSpaceShip.from(), MilkywayMarket(L:17)                                             |
+| ch-7.p12   | Cargo.decay, PlayerReadOnlyInfoProvider.getDistance                                        |
+| ch-7.p18   | Logger.printWithColor                                                                      |
+| ch-7.p22   | SpaceShip.getCargos                                                                        |
+| ch-7.p24   | PlayerAttributes.currentPlanet, PlanetTradeGame.getJourneyPlanOnEmpty                      |
+| ch-8.p5    | MilkyWayBlackhole(L:61), Galaxy(L:32)                                                      |
+| ch-8.p17   | Galaxy.controlMultiPlanetGalaxyAndThrowErrorIfNeeded,LoadableSpaceShip.unloadCargo-addFuel |
+| ch-9.p5    | PlanetTradeGame(L:312-397-438-446)                                                         |
 

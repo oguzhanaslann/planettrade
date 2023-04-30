@@ -1,4 +1,4 @@
-package util;
+package planettrade.util;
 
 public final class Pair<T, K> {
     private T first;

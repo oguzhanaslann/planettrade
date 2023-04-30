@@ -3,8 +3,8 @@ package planettrade.planet;
 import planettrade.market.Market;
 import planettrade.market.MarketGenerator;
 import planettrade.money.Money;
-import util.NumberUtils;
-import util.StringUtils;
+import planettrade.util.NumberUtils;
+import planettrade.util.StringUtils;
 
 public class Planet {
     private final String name;

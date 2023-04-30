@@ -28,7 +28,7 @@ import planettrade.spaceship.SpaceShip;
 import planettrade.spaceship.SpaceshipFactory;
 import project.gameengine.TurnBasedGameEngine;
 import project.gameengine.base.*;
-import util.NumberUtils;
+import planettrade.util.NumberUtils;
 
 import java.util.*;
 import java.util.function.Supplier;

@@ -1,4 +1,4 @@
-package util;
+package planettrade.util;
 
 public class NumberUtils {
 

@@ -1,8 +1,8 @@
 package planettrade.spaceship;
 
 import planettrade.money.Money;
-import util.NumberUtils;
-import util.StringUtils;
+import planettrade.util.NumberUtils;
+import planettrade.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.IntStream;

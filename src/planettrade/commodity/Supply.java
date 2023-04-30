@@ -1,6 +1,6 @@
 package planettrade.commodity;
 
-import util.NumberUtils;
+import planettrade.util.NumberUtils;
 
 public record Supply(int amount, double buyPrice, double sellPrice) {
     public static Supply random() {

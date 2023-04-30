@@ -7,7 +7,7 @@ import planettrade.logger.Logger;
 import planettrade.market.MarketGenerator;
 import planettrade.planet.DistanceTable;
 import planettrade.planet.Planet;
-import util.NumberUtils;
+import planettrade.util.NumberUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;

@@ -2,7 +2,7 @@ package planettrade.market;
 
 import planettrade.commodity.Commodity;
 import planettrade.commodity.Supply;
-import util.Pair;
+import planettrade.util.Pair;
 
 import java.util.List;
 import java.util.function.Supplier;

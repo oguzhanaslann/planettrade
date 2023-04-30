@@ -1,6 +1,6 @@
 package planettrade;
 
-import util.NumberUtils;
+import planettrade.util.NumberUtils;
 
 import java.util.Objects;
 
