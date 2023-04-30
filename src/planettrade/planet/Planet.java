@@ -12,9 +12,9 @@ public class Planet {
 
     private final Money unitFuelPrice;
 
-    private final double spaceShipParkingPricePerTurn;
+    private final Money spaceShipParkingPricePerTurn;
 
-    public Planet(String name, Market market, Money unitFuelPrice, double spaceShipParkingPricePerTurn) {
+    public Planet(String name, Market market, Money unitFuelPrice, Money spaceShipParkingPricePerTurn) {
         this.name = name;
         this.market = market;
         this.unitFuelPrice = unitFuelPrice;
@@ -33,6 +33,10 @@ public class Planet {
         return unitFuelPrice;
     }
 
+    public Money getSpaceShipParkingPricePerTurn() {
+        return spaceShipParkingPricePerTurn;
+    }
+
     public static Planet random(
             MarketGenerator marketGenerator
     ) {
@@ -40,7 +44,7 @@ public class Planet {
                 StringUtils.generateRandomName(),
                 marketGenerator.generate(),
                 Money.of(NumberUtils.random(0.1d, 1d)),
-                NumberUtils.random(1d, 10d)
+                Money.of(NumberUtils.random(1d, 10d))
         );
     }
 

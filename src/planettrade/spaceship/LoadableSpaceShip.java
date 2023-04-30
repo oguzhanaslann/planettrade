@@ -5,7 +5,6 @@ import planettrade.commodity.Cargo;
 import planettrade.money.Money;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public final class LoadableSpaceShip extends SpaceShip {
@@ -15,7 +14,7 @@ public final class LoadableSpaceShip extends SpaceShip {
     }
 
     public static LoadableSpaceShip from(SpaceShip spaceShip) {
-        LoadableSpaceShip instance =  new LoadableSpaceShip(
+        LoadableSpaceShip instance = new LoadableSpaceShip(
                 spaceShip.getName(),
                 spaceShip.getBuyPrice(),
                 spaceShip.getCapacity(),
@@ -28,6 +27,10 @@ public final class LoadableSpaceShip extends SpaceShip {
         instance.cargos = spaceShip.getCargos();
 
         return instance;
+    }
+
+    public static Builder builder(String name, Money buyPrice, int capacity, double fuelCapacity, double fuelUsagePerLightYear) {
+        return new Builder(name, buyPrice, capacity, fuelCapacity, fuelUsagePerLightYear);
     }
 
     public void loadCargo(Cargo cargo) {
@@ -69,10 +72,6 @@ public final class LoadableSpaceShip extends SpaceShip {
         cargos = List.copyOf(newCargos);
     }
 
-    public static Builder builder(String name, Money buyPrice, int capacity, double fuelCapacity, double fuelUsagePerLightYear) {
-        return new Builder(name, buyPrice, capacity, fuelCapacity, fuelUsagePerLightYear);
-    }
-
     public void addFuel(double fuel) {
         if (fuel < 0) {
             throw new IllegalArgumentException("Fuel cannot be negative");
@@ -83,6 +82,18 @@ public final class LoadableSpaceShip extends SpaceShip {
         }
 
         currentFuel += fuel;
+    }
+
+    public void reduceFuel(double fuel) {
+        if (fuel < 0) {
+            throw new IllegalArgumentException("Fuel cannot be negative");
+        }
+
+        if (fuel > currentFuel) {
+            throw new IllegalArgumentException("Fuel cannot be more than current fuel");
+        }
+
+        currentFuel -= fuel;
     }
 
     public static class Builder {

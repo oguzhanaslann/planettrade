@@ -4,7 +4,7 @@ import planettrade.player.PlanetTradePlayer;
 import project.gameengine.base.Action;
 
 public record BuyFuelAction(
-        PlanetTradePlayer planetTradePlayer,
+        PlanetTradePlayer player,
         double fuelToBuy
 ) implements Action {
 }

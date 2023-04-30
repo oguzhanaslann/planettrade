@@ -7,7 +7,7 @@ import planettrade.spaceship.SpaceShip;
 import java.util.Optional;
 
 public interface PlayerAttributes {
-    Optional<SpaceShip> shapeShip() ;
+    Optional<SpaceShip> spaceShip() ;
     Optional<Planet> currentPlanet();
     Money money();
 }

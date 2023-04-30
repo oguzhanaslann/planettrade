@@ -13,7 +13,11 @@ public class DistanceTable {
     }
 
     public LightYear getDistance(Planet from, Planet to) {
-        return distances.get(from).get(to);
+        LightYear distance = distances.get(from).get(to);
+        if (distance == null) {
+            return LightYear.ZERO;
+        }
+        return distance;
     }
 
     public Map<Planet, LightYear> getDistancesFrom(Planet from) {

@@ -1,11 +1,10 @@
-package planettrade.game.actions;
+package planettrade.game.actions.journey;
 
-import planettrade.commodity.Cargo;
 import planettrade.player.PlanetTradePlayer;
 import project.gameengine.base.Action;
 
-public record SellCargoAction(
+public record JourneyPlanAction(
         PlanetTradePlayer player,
-        Cargo cargo
+        JourneyPlan journeyPlan
 ) implements Action {
 }

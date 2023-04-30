@@ -15,7 +15,7 @@ public class BuyShapeShipAction implements Action {
         this.shapeShip = shapeShip;
     }
 
-    public PlanetTradePlayer getPlayer() {
+    public PlanetTradePlayer player() {
         return player;
     }
 

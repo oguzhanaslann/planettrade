@@ -3,15 +3,16 @@ package planettrade.player;
 import planettrade.commodity.Cargo;
 import planettrade.commodity.Commodity;
 import planettrade.commodity.Supply;
+import planettrade.game.actions.BuyFuelAction;
 import planettrade.game.actions.BuyItemAction;
 import planettrade.game.actions.BuyShapeShipAction;
 import planettrade.game.actions.SellCargoAction;
+import planettrade.game.actions.journey.JourneyPlan;
+import planettrade.game.actions.journey.JourneyPlanAction;
 import planettrade.game.context.BuyShapeShipContext;
-import planettrade.logger.Logger;
 import planettrade.market.Market;
 import planettrade.money.Money;
 import planettrade.planet.Planet;
-import planettrade.game.actions.BuyFuelAction;
 import planettrade.spaceship.SpaceShip;
 import project.gameengine.NullAction;
 import project.gameengine.base.Action;
@@ -22,6 +23,7 @@ import util.NumberUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * A player has:
@@ -50,7 +52,7 @@ import java.util.Optional;
  * <p>
  * Plan journey to another planet. If this is done in one turn the player will be at the target planet in the next
  * turn if the spaceship has sufficient amount of fuel which is calculated by the fuel usage of the spaceship and
- * the distance between the planets. Otherwise the player stays at the same planet causing a drop in the current money by the parking price of the
+ * the value between the planets. Otherwise the player stays at the same planet causing a drop in the current money by the parking price of the
  * current planet.
  */
 
@@ -69,7 +71,7 @@ public final class PlanetTradePlayer implements Player {
     public boolean hasShapeShip() {
         return readOnlyInfoProvider
                 .getAttributes(this)
-                .shapeShip()
+                .spaceShip()
                 .isPresent();
     }
 
@@ -98,6 +100,7 @@ public final class PlanetTradePlayer implements Player {
         final int BuyNewMarketItems = 1;
         final int SellCargo = 2;
         final int BuyFuel = 3;
+        final int JourneyPlan = 4;
         switch (action) {
             case BuyNewMarketItems -> {
                 return getBuyItemAction();
@@ -107,6 +110,9 @@ public final class PlanetTradePlayer implements Player {
             }
             case BuyFuel -> {
                 return getBuyFuelAction();
+            }
+            case JourneyPlan -> {
+                return getJourneyPlanAction();
             }
             default -> {
                 return new NullAction();
@@ -131,11 +137,11 @@ public final class PlanetTradePlayer implements Player {
                 .filter(commodity -> supplies.get(commodity).amount() > 0)
                 .toList();
 
-        if (attributes.shapeShip().isEmpty()) {
+        if (attributes.spaceShip().isEmpty()) {
             throw new IllegalStateException("Player has no shape ship");
         }
 
-        SpaceShip currentSpaceShip = attributes.shapeShip().get();
+        SpaceShip currentSpaceShip = attributes.spaceShip().get();
 
         if (currentSpaceShip.hasCargoSpace()) {
             int availableCargoSpace = currentSpaceShip.getAvailableCargoSpace();
@@ -157,11 +163,11 @@ public final class PlanetTradePlayer implements Player {
     private Action getSellCargoAction() {
         PlayerAttributes attributes = getAttributes();
 
-        if (attributes.shapeShip().isEmpty()) {
+        if (attributes.spaceShip().isEmpty()) {
             throw new IllegalStateException("Player has no shape ship");
         }
 
-        SpaceShip spaceShip = attributes.shapeShip().get();
+        SpaceShip spaceShip = attributes.spaceShip().get();
         List<Cargo> cargos = spaceShip.getCargos();
         if (!cargos.isEmpty()) {
             Cargo randomCargo = cargos.get(NumberUtils.random(0, cargos.size() - 1));
@@ -173,25 +179,42 @@ public final class PlanetTradePlayer implements Player {
 
     // * Buy fuel as much as the fuel capacity of the spaceship allows. It causes the current money drop with the amount
     // * calculated by the unit fuel price at the current planet.
+
     private Action getBuyFuelAction() {
-        Logger.release("getBuyFuelAction");
         PlayerAttributes attributes = getAttributes();
-        if (attributes.shapeShip().isEmpty()) {
+        if (attributes.spaceShip().isEmpty()) {
             throw new IllegalStateException("Player has no shape ship");
         }
 
-        SpaceShip spaceShip = attributes.shapeShip().get();
-        double currentFuel  = spaceShip.getCurrentFuel();
-        Logger.release("currentFuel: " + currentFuel);
+        SpaceShip spaceShip = attributes.spaceShip().get();
+        double currentFuel = spaceShip.getCurrentFuel();
         double fuelCapacity = spaceShip.getFuelCapacity();
-        Logger.release("fuelCapacity: " + fuelCapacity);
         double fuelToBuy = fuelCapacity - currentFuel;
-        Logger.release("fuelToBuy: " + fuelToBuy);
         if (fuelToBuy > 0) {
             return new BuyFuelAction(this, fuelToBuy);
         }
 
         return new NullAction();
+    }
+
+    private Action getJourneyPlanAction() {
+        Optional<Planet> currentPlanetOptional = getAttributes().currentPlanet();
+        if (currentPlanetOptional.isEmpty()) {
+            throw new IllegalStateException("Player has no current planet");
+        }
+
+        Planet currentPlanet = currentPlanetOptional.get();
+
+        Set<Planet> planets = readOnlyInfoProvider.getPlanets();
+        List<Planet> planetList = planets.stream()
+                .filter(planet -> !planet.equals(currentPlanet))
+                .toList();
+        int randomIndex = NumberUtils.random(0, planetList.size() - 1);
+        Planet targetPlanet = planetList.get(randomIndex);
+        return new JourneyPlanAction(
+                this,
+                new JourneyPlan(this, currentPlanet, targetPlanet)
+        );
     }
 
     private PlayerAttributes getAttributes() {
@@ -231,11 +254,6 @@ public final class PlanetTradePlayer implements Player {
 
     @Override
     public String toString() {
-        return "PlanetTradePlayer{" +
-                "name='" + name + '\'' +
-                //", shapeShip=" + playerAttributeProvider.getShapeShip() +
-                //", currentPlanet=" + playerAttributeProvider.getPlanet() +
-                //", money=" + playerAttributeProvider.getMoney() +
-                '}';
+        return "PlanetTradePlayer{" + "name='" + name + '\'' + '}';
     }
 }

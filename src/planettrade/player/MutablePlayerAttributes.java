@@ -21,7 +21,7 @@ public final class MutablePlayerAttributes implements PlayerAttributes {
     }
 
     @Override
-    public Optional<SpaceShip> shapeShip() {
+    public Optional<SpaceShip> spaceShip() {
         return shapeShip.map(shapeShip -> shapeShip);
     }
 

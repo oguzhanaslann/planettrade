@@ -8,8 +8,6 @@ import planettrade.planet.Planet;
 import java.util.Set;
 
 public interface PlayerReadOnlyInfoProvider extends PlayerAttributeProvider {
-    Market getMarketOf(Planet planet);
-
     LightYear getDistance(Planet from, Planet to);
 
     Set<Planet> getPlanets();
