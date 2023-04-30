@@ -73,6 +73,18 @@ public final class LoadableSpaceShip extends SpaceShip {
         return new Builder(name, buyPrice, capacity, fuelCapacity, fuelUsagePerLightYear);
     }
 
+    public void addFuel(double fuel) {
+        if (fuel < 0) {
+            throw new IllegalArgumentException("Fuel cannot be negative");
+        }
+
+        if (fuel > getFuelCapacity()) {
+            throw new IllegalArgumentException("Fuel cannot be more than fuel capacity");
+        }
+
+        currentFuel += fuel;
+    }
+
     public static class Builder {
         private String name;
         private Money buyPrice;

@@ -5,6 +5,7 @@ import planettrade.blackhole.MilkyWayBlackhole;
 import planettrade.commodity.Cargo;
 import planettrade.commodity.Commodity;
 import planettrade.galaxy.Galaxy;
+import planettrade.game.actions.BuyFuelAction;
 import planettrade.game.actions.BuyItemAction;
 import planettrade.game.actions.BuyShapeShipAction;
 import planettrade.game.actions.SellCargoAction;
@@ -36,16 +37,12 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
     public static final int MINIMUM_PLAYER_COUNT = 1;
     final List<PlanetTradePlayer> players;
     private final GameEngine engine;
+    private final HashMap<PlanetTradePlayer, MutablePlayerAttributes> playerAttributes = new HashMap<>();
     private int turns;
     private int currentTurn = 0;
-
     private PlanetTradeContextFactory actionFactory = PlanetTradeContextFactory.createInstance();
-
     private List<Commodity> commodities;
     private List<LoadableSpaceShip> shapeShips;
-
-    private final HashMap<PlanetTradePlayer, MutablePlayerAttributes> playerAttributes = new HashMap<>();
-
     private Galaxy galaxy = null;
 
     public PlanetTradeGame(GameRenderer gameRenderer) {
@@ -198,6 +195,9 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
         } else if (action instanceof SellCargoAction) {
             Logger.debug("PlanetTradeGame: player: " + currentPlayer.getName() + " is selling cargo" + ((SellCargoAction) action).cargo());
             onSellCargoAction(currentPlayer, (SellCargoAction) action);
+        } else if (action instanceof BuyFuelAction) {
+            Logger.debug("PlanetTradeGame: player: " + currentPlayer.getName() + " is buying fuel" + ((BuyFuelAction) action).fuelToBuy());
+            onBuyFuelAction(currentPlayer, (BuyFuelAction) action);
         }
     }
 
@@ -291,6 +291,46 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
         attributesOfPlayer.addMoney(sellMoney);
         spaceShip.unloadCargo(cargoToSell);
         Logger.release("PlanetTradeGame: player: " + currentPlayer.getName() + " sold cargo: " + cargoToSell + " with price: " + sellMoney);
+    }
+
+    private void onBuyFuelAction(PlanetTradePlayer currentPlayer, BuyFuelAction action) {
+        double fuelToBuy = action.fuelToBuy();
+        MutablePlayerAttributes attributesOfPlayer = playerAttributes.get(currentPlayer);
+        if (attributesOfPlayer.currentPlanet().isEmpty()) {
+            Logger.error("PlanetTradeGame: player: " + currentPlayer.getName() + " is not at any planet");
+            return;
+        }
+
+        Planet currentPlanet = attributesOfPlayer.currentPlanet().get();
+        Money fuelPrice = currentPlanet.getUnitFuelPrice();
+        Money totalPrice = fuelPrice.multiply(fuelToBuy);
+        Money userMoney = attributesOfPlayer.money();
+
+        if (userMoney.isLess(totalPrice)) {
+            Logger.error("PlanetTradeGame: player: " + currentPlayer.getName() + " is trying to buy fuel: " + fuelToBuy + " but does not have enough money");
+            return;
+        }
+
+        Optional<LoadableSpaceShip> spaceShipOptional = attributesOfPlayer.loadableShapeShip();
+        if (spaceShipOptional.isEmpty()) {
+            Logger.error("PlanetTradeGame: player: " + currentPlayer.getName() + " is trying to buy fuel: " + fuelToBuy + " but does not have a spaceship");
+            return;
+        }
+
+        LoadableSpaceShip spaceShip = spaceShipOptional.get();
+        double spaceShipFuel = spaceShip.getCurrentFuel();
+        double spaceShipFuelCapacity = spaceShip.getFuelCapacity();
+        double spaceShipFuelAfterPurchase = spaceShipFuel + fuelToBuy;
+        if (spaceShipFuelAfterPurchase > spaceShipFuelCapacity) {
+            Logger.error("PlanetTradeGame: player: " + currentPlayer.getName() + " is trying to buy fuel: " + fuelToBuy + " but spaceship cannot carry that much");
+            return;
+        }
+
+        synchronized (playerAttributes) {
+            attributesOfPlayer.reduceMoney(totalPrice);
+            spaceShip.addFuel(fuelToBuy);
+        }
+        Logger.release("PlanetTradeGame: player: " + currentPlayer.getName() + " bought fuel: " + fuelToBuy + " with price: " + totalPrice);
     }
 
     @Override

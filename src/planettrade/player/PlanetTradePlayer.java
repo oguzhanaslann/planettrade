@@ -7,9 +7,11 @@ import planettrade.game.actions.BuyItemAction;
 import planettrade.game.actions.BuyShapeShipAction;
 import planettrade.game.actions.SellCargoAction;
 import planettrade.game.context.BuyShapeShipContext;
+import planettrade.logger.Logger;
 import planettrade.market.Market;
 import planettrade.money.Money;
 import planettrade.planet.Planet;
+import planettrade.game.actions.BuyFuelAction;
 import planettrade.spaceship.SpaceShip;
 import project.gameengine.NullAction;
 import project.gameengine.base.Action;
@@ -95,12 +97,16 @@ public final class PlanetTradePlayer implements Player {
         int action = NumberUtils.random(1, 4);
         final int BuyNewMarketItems = 1;
         final int SellCargo = 2;
+        final int BuyFuel = 3;
         switch (action) {
             case BuyNewMarketItems -> {
                 return getBuyItemAction();
             }
             case SellCargo -> {
                 return getSellCargoAction();
+            }
+            case BuyFuel -> {
+                return getBuyFuelAction();
             }
             default -> {
                 return new NullAction();
@@ -148,8 +154,6 @@ public final class PlanetTradePlayer implements Player {
     }
 
 
-    //Sell any cargo in the spaceship. The sell operation causes increase in the current money with amount calculated
-    // by the cargo amount and unit sell price of the commodity in the market.
     private Action getSellCargoAction() {
         PlayerAttributes attributes = getAttributes();
 
@@ -162,6 +166,29 @@ public final class PlanetTradePlayer implements Player {
         if (!cargos.isEmpty()) {
             Cargo randomCargo = cargos.get(NumberUtils.random(0, cargos.size() - 1));
             return new SellCargoAction(this, randomCargo);
+        }
+
+        return new NullAction();
+    }
+
+    // * Buy fuel as much as the fuel capacity of the spaceship allows. It causes the current money drop with the amount
+    // * calculated by the unit fuel price at the current planet.
+    private Action getBuyFuelAction() {
+        Logger.release("getBuyFuelAction");
+        PlayerAttributes attributes = getAttributes();
+        if (attributes.shapeShip().isEmpty()) {
+            throw new IllegalStateException("Player has no shape ship");
+        }
+
+        SpaceShip spaceShip = attributes.shapeShip().get();
+        double currentFuel  = spaceShip.getCurrentFuel();
+        Logger.release("currentFuel: " + currentFuel);
+        double fuelCapacity = spaceShip.getFuelCapacity();
+        Logger.release("fuelCapacity: " + fuelCapacity);
+        double fuelToBuy = fuelCapacity - currentFuel;
+        Logger.release("fuelToBuy: " + fuelToBuy);
+        if (fuelToBuy > 0) {
+            return new BuyFuelAction(this, fuelToBuy);
         }
 
         return new NullAction();
