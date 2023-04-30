@@ -96,6 +96,18 @@ public final class LoadableSpaceShip extends SpaceShip {
         currentFuel -= fuel;
     }
 
+
+
+    public void decayCargos() {
+        ArrayList<Cargo> newCargos = new ArrayList<>(getCargos());
+        newCargos.forEach(cargo -> {
+            int index = newCargos.indexOf(cargo);
+            newCargos.set(index, cargo.decay());
+        });
+
+        cargos = List.copyOf(newCargos);
+    }
+
     public static class Builder {
         private String name;
         private Money buyPrice;

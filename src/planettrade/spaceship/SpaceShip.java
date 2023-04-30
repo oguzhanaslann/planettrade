@@ -71,7 +71,7 @@ public abstract class SpaceShip {
     }
 
     public List<Cargo> getCargos() {
-        return cargos;
+        return cargos !=null ? List.copyOf(cargos) : Collections.emptyList();
     }
 
     public LightYear getSpeed() {

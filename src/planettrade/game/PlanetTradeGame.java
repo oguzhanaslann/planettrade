@@ -28,9 +28,23 @@ import planettrade.spaceship.SpaceShip;
 import planettrade.spaceship.SpaceshipFactory;
 import project.gameengine.TurnBasedGameEngine;
 import project.gameengine.base.*;
+import util.NumberUtils;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
+
+/**
+ * R-20
+ * At each turn player actions are validated by the game and if they are valid necessary updates are performed accordingly which includes:
+ * • the current money of each player
+ * • current planet of each player
+ * R-22
+ * At each market of each planet the following changes randomly
+ * • unit buy price and unit sell price of each market item (with relatively small
+ * amount)
+ * • current supply of each market item (with relatively small amount
+ */
 
 public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
     public static final Money initialMoney = new Money(10_000);
@@ -51,13 +65,11 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
     public PlanetTradeGame(GameRenderer gameRenderer) {
         Logger.debug("PlanetTradeGame: initializing with renderer: " + gameRenderer);
         this.engine = new TurnBasedGameEngine(this, gameRenderer);
-        //IntStream
-        //                .range(MINIMUM_PLAYER_COUNT, NumberUtils.random(MINIMUM_PLAYER_COUNT, MAXIMUM_PLAYER_COUNT))
-        //                .mapToObj(i -> new PlanetTradePlayer("Player - " + i, this))
-        //                .toList();
-        this.players = List.of(
-                new PlanetTradePlayer("Player - 1", this)
-        );
+
+        this.players = IntStream
+                .range(MINIMUM_PLAYER_COUNT, NumberUtils.random(MINIMUM_PLAYER_COUNT, MAXIMUM_PLAYER_COUNT) + 1)
+                .mapToObj(i -> new PlanetTradePlayer("Player - " + i, this))
+                .toList();
 
         Logger.info("PlanetTradeGame: total players: " + players.size());
         players.forEach(engine::addPlayer);
@@ -159,10 +171,25 @@ public final class PlanetTradeGame implements Game, PlayerReadOnlyInfoProvider {
 
     @Override
     public void update(Action action) {
+        decayCargos();
         processJourneyPlans();
         processActionOf(action);
-        currentTurn = Math.min(currentTurn + 1, turns);
         logPlayerStats();
+        currentTurn = Math.min(currentTurn + 1, turns);
+    }
+
+    private void decayCargos() {
+        players.forEach(
+                player -> {
+                    MutablePlayerAttributes attrs = playerAttributes.get(player);
+                    Optional<LoadableSpaceShip> spaceShipOptional = attrs.loadableShapeShip();
+                    spaceShipOptional.ifPresent(spaceShip -> {
+                        spaceShip.decayCargos();
+                        Logger.info("PlanetTradeGame: player: " + player + " spaceship: " + spaceShip + " cargos decayed");
+                    });
+
+                }
+        );
     }
 
     private void processJourneyPlans() {
